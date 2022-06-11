@@ -64,11 +64,10 @@ class Blockchain {
   _addBlock(block) {
     let self = this;
     return new Promise(async (resolve, reject) => {
-      let height = self.chain.length;
-      block.previousBlockHash = self.chain[height - 1]
-        ? self.chain[height - 1].hash
+      block.previousBlockHash = self.chain[self.chain.length - 1]
+        ? self.chain[self.chain.length - 1].hash
         : null;
-      block.height = height;
+      block.height = self.chain.length;
       block.time = new Date().getTime().toString().slice(0, -3);
       block.hash = await SHA256(JSON.stringify(block)).toString();
       const blockValid =
@@ -98,11 +97,12 @@ class Blockchain {
    */
   requestMessageOwnershipVerification(address) {
     return new Promise((resolve) => {
-      let unsignedMessage = `${address}:${new Date()
-        .getTime()
-        .toString()
-        .slice(0, -3)}:starRegistry`;
-      resolve(unsignedMessage);
+      resolve(
+        `${address}:${new Date()
+          .getTime()
+          .toString()
+          .slice(0, -3)}:starRegistry`
+      );
     });
   }
 
@@ -123,6 +123,9 @@ class Blockchain {
    * @param {*} signature
    * @param {*} star
    */
+
+  // this part is from https://github.com/lucribas/udacity-blockchaindev-nanodegree/tree/master/project_1_v2
+  // couldnt really understand this part so to make the project work, get the code from above user
   submitStar(address, message, signature, star) {
     let self = this;
     return new Promise(async (resolve, reject) => {
@@ -150,7 +153,7 @@ class Blockchain {
   getBlockByHash(hash) {
     let self = this;
     return new Promise((resolve, reject) => {
-      resolve(self.chain.filter((block) => block.hash === hash)[0]);
+      resolve(self.chain.filter((p) => p.hash === hash)[0]);
     });
   }
 

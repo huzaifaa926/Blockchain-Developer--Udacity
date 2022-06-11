@@ -9,11 +9,6 @@
  *  run asynchronous.
  */
 
-console.log("------------------------------------------------------");
-console.log("Projects of Udacity Blockchain Developer Nanodegree:");
-console.log("1. Private Blockchain Application");
-console.log("------------------------------------------------------");
-
 const SHA256 = require("crypto-js/sha256");
 const hex2ascii = require("hex2ascii");
 
@@ -44,15 +39,13 @@ class Block {
     let self = this;
     return new Promise(async (resolve, reject) => {
       // Save in auxiliary variable the current block hash
-      const hash = self.hash;
+      var auxHash = self.hash;
       // Recalculate the hash of the Block
-      self.hash = await SHA256(
-        JSON.stringify({ ...self, hash: null })
-      ).toString();
+      var reHash = SHA256(JSON.stringify(this)).toString();
       // Comparing if the hashes changed
       // Returning the Block is not valid
       // Returning the Block is valid
-      resolve(hash === self.hash);
+      resolve(reHash === auxHash);
     });
   }
 
@@ -69,15 +62,12 @@ class Block {
     let self = this;
     return new Promise((resolve, reject) => {
       // Getting the encoded data saved in the Block
-      const hexEncodedString = self.body;
       // Decoding the data to retrieve the JSON representation of the object
-      const decodedString = hex2ascii(hexEncodedString);
       // Parse the data to an object to be retrieved.
-      const decodedObject = JSON.parse(decodedString);
+      var decodeObj = JSON.parse(hex2ascii(self.body));
       // Resolve with the data if the object isn't the Genesis block
-      self.height > 0
-        ? resolve(decodedObject)
-        : reject(new Error("genesis block"));
+      if (self.height > 0) resolve(decodeObj);
+      else reject(new Error("genesis block can't be evaluated"));
     });
   }
 }
