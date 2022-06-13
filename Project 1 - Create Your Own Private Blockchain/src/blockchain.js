@@ -135,7 +135,7 @@ class Blockchain {
       } catch {
         reject(new Error("Not verified!"));
       }
-      var block = BlockClass.block({
+      var block = BlockClass.Block({
         address: address,
         message: message,
         signature: signature,
