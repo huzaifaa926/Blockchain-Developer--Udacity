@@ -60,34 +60,43 @@ class Blockchain {
    * Note: the symbol `_` in the method name indicates in the javascript convention
    * that this method is a private method.
    */
-   _addBlock(block) {
+  _addBlock(block) {
     let self = this;
     return new Promise(async (resolve, reject) => {
       try {
         if (self.height !== -1)
           block.previousBlockHash = self.chain[self.height].hash;
 
-        //var isValid = await block.validate();
+        block.height = self.height + 1;
+        block.time = new Date().getTime().toString().slice(0, -3);
+        block.hash = SHA256(JSON.stringify(block)).toString();
 
-        //if (!isValid) new Error("Can't add block");
-        try {
-          var errs = await self.validateChain();
-          if (errs === "No errors") {
-            block.height = self.height + 1;
-            block.time = new Date().getTime().toString().slice(0, -3);
-            block.hash = SHA256(JSON.stringify(block)).toString();
+        var isValid = await self.validateChain();
+        isValid ? resolve(block) : reject(new Error("Can't add"));
+        // try {
+        //   var errs = await self.validateChain();
+        //   if (errs === "No errors") {
+        //     block.height = self.height + 1;
+        //     block.time = new Date().getTime().toString().slice(0, -3);
+        //     block.hash = await SHA256(JSON.stringify(block)).toString();
 
-            self.chain.push(block);
-            self.height += 1;
-            resolve(block);
-          }
-        } catch (err) {
-          reject(err);
-        }
+        //     self.chain.push(block);
+        //     self.height += 1;
+        //     resolve(block);
+        //   }
+        // } catch (err) {
+        //   reject(err);
+        // }
       } catch (err) {
         reject(err);
       }
-    });
+    })
+      .catch((error) => console.log("[ERROR] ", error))
+      .then((block) => {
+        this.chain.push(block);
+        this.height += 1;
+        return block;
+      });
   }
 
   /**
@@ -101,7 +110,8 @@ class Blockchain {
   requestMessageOwnershipVerification(address) {
     return new Promise((resolve) => {
       resolve(
-        address+`:${new Date().getTime().toString().slice(0, -3)}:starRegistry`
+        address +
+          `:${new Date().getTime().toString().slice(0, -3)}:starRegistry`
       );
     });
   }
@@ -135,7 +145,7 @@ class Blockchain {
       } catch {
         reject(new Error("Not verified!"));
       }
-      var block = BlockClass.Block({
+      var block = new BlockClass.Block({
         address: address,
         message: message,
         signature: signature,
@@ -229,7 +239,7 @@ class Blockchain {
         }
       });
       if (errorLog.length > 0) resolve(errorLog);
-      else resolve("No errors");
+      else resolve(true);
     });
   }
 }
